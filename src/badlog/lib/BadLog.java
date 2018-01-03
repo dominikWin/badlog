@@ -101,10 +101,10 @@ public class BadLog {
 	 * Creates a subscribed topic.
 	 * @param name
 	 * @param unit
-	 * @param inferMode the method to use if data has not been published
+	 * @param dataInferMode the method to use if data has not been published
 	 * @param attrs array of topic attributes
 	 */
-	public static void createTopicSubscriber(String name, String unit, DataInferMode inferMode, String... attrs) {
+	public static void createTopicSubscriber(String name, String unit, DataInferMode dataInferMode, String... attrs) {
 		if (!instance.get().registerMode)
 			throw new InvalidModeException();
 		if (isInNamespace(name))
@@ -113,7 +113,7 @@ public class BadLog {
 		instance.get().checkName(name);
 
 		instance.get().publishedData.put(name, Optional.empty());
-		SubscribedTopic topic = new SubscribedTopic(name, unit, inferMode, attrs);
+		SubscribedTopic topic = new SubscribedTopic(name, unit, dataInferMode, attrs);
 		instance.get().namespace.add(topic);
 		instance.get().topics.add(topic);
 	}
