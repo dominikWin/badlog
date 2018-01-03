@@ -19,8 +19,6 @@ public class BadLog {
 	public static final String UNITLESS = "ul";
 	public static final String DEFAULT_DATA = Double.toString(-1.0);
 
-	private static final Function<Double, String> DOUBLE_TO_STRING_FUNC = (d) -> String.format("%.5g", d);
-
 	private static Optional<BadLog> instance = Optional.empty();
 
 	private boolean registerMode;
@@ -28,8 +26,10 @@ public class BadLog {
 	private List<NamespaceObject> namespace;
 	private HashMap<String, Optional<String>> publishedData;
 	private List<Topic> topics;
-	
+
 	private FileWriter fileWriter;
+
+	private Function<Double, String> doubleStringFunction = (d) -> String.format("%.5g", d);
 
 	private BadLog(String path) {
 		registerMode = true;
@@ -58,7 +58,7 @@ public class BadLog {
 			throw new InvalidModeException();
 		if (isInNamespace(name))
 			throw new DuplicateNameException();
-		
+
 		instance.get().checkName(name);
 
 		QueriedTopic topic = new QueriedTopic(name, unit, supplier, attrs);
@@ -67,7 +67,8 @@ public class BadLog {
 	}
 
 	public static void createTopic(String name, String unit, Supplier<Double> supplier, String... attrs) {
-		createTopicStr(name, unit, () -> DOUBLE_TO_STRING_FUNC.apply(supplier.get()), attrs);
+		BadLog instance = BadLog.instance.get();
+		createTopicStr(name, unit, () -> instance.doubleStringFunction.apply(supplier.get()), attrs);
 	}
 
 	public static void createTopicSubscriber(String name, String unit, DataInferMode inferMode, String... attrs) {
@@ -75,7 +76,7 @@ public class BadLog {
 			throw new InvalidModeException();
 		if (isInNamespace(name))
 			throw new DuplicateNameException();
-		
+
 		instance.get().checkName(name);
 
 		instance.get().publishedData.put(name, Optional.empty());
@@ -89,7 +90,7 @@ public class BadLog {
 			throw new InvalidModeException();
 		if (isInNamespace(name))
 			throw new DuplicateNameException();
-		
+
 		instance.get().checkName(name);
 
 		instance.get().namespace.add(new Value(name, value));
@@ -103,7 +104,7 @@ public class BadLog {
 	}
 
 	public static void publish(String name, double value) {
-		publish(name, DOUBLE_TO_STRING_FUNC.apply(value));
+		publish(name, instance.get().doubleStringFunction.apply(value));
 	}
 
 	public void finalize() {
@@ -120,7 +121,7 @@ public class BadLog {
 
 		writeLine(jsonHeader);
 		writeLine(header);
-		
+
 		try {
 			fileWriter.flush();
 		} catch (IOException e) {
@@ -142,7 +143,7 @@ public class BadLog {
 			topic.put("attrs", attrs);
 			jsonTopics.add(topic);
 		}
-		
+
 		jsonRoot.put("topics", jsonTopics);
 
 		JSONArray jsonValues = new JSONArray();
@@ -178,8 +179,12 @@ public class BadLog {
 		StringJoiner joiner = new StringJoiner(",");
 		topics.stream().map(Topic::getValue).forEach((v) -> joiner.add(v));
 		String line = joiner.toString();
-		
+
 		writeLine(line);
+	}
+
+	public void setDoubleToStringFunction(Function<Double, String> function) {
+		this.doubleStringFunction = function;
 	}
 
 	private static boolean isInNamespace(String name) {
@@ -192,18 +197,18 @@ public class BadLog {
 
 		publishedData.put(name, Optional.of(value));
 	}
-	
+
 	private void checkName(String name) {
-		for(char c : name.toCharArray()) {
-			if(Character.isLetterOrDigit(c) || c == ' ' || c == '_' || c == '/')
+		for (char c : name.toCharArray()) {
+			if (Character.isLetterOrDigit(c) || c == ' ' || c == '_' || c == '/')
 				continue;
-			
+
 			// Don't crash or throw exception, probably won't cause errors
 			System.out.println("Invalid character " + c + " in name " + name);
 			return;
 		}
 	}
-	
+
 	private void writeLine(String line) {
 		try {
 			fileWriter.write(line + System.lineSeparator());
