@@ -12,7 +12,7 @@ public class Main {
 			
 			BadLog.createTopicSubscriber("Subscribed topic", "s", DataInferMode.DEFAULT);
 		}
-		log.finalize();
+		log.finishInitialization();
 		
 		
 		

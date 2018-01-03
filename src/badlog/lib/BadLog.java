@@ -159,7 +159,7 @@ public class BadLog {
 	 * Closes the logger for any new values or topics.
 	 * Prints bag file headers.
 	 */
-	public void finalize() {
+	public void finishInitialization() {
 		if (!registerMode)
 			throw new InvalidModeException();
 		registerMode = false;
