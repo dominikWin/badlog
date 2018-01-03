@@ -16,6 +16,9 @@ import org.json.simple.JSONObject;
 
 public class BadLog {
 
+	/**
+	 * The unit to use when the data does not have a unit.
+	 */
 	public static final String UNITLESS = "ul";
 	public static final String DEFAULT_DATA = Double.toString(-1.0);
 
@@ -43,6 +46,12 @@ public class BadLog {
 		}
 	}
 
+	/**
+	 * Initializes BadLog.
+	 * @param path of bag file
+	 * @return the instance of BadLog
+	 * @throws RuntimeException if already initialized
+	 */
 	public static BadLog init(String path) {
 		if (instance.isPresent())
 			throw new RuntimeException();
@@ -53,6 +62,13 @@ public class BadLog {
 		return badLog;
 	}
 
+	/**
+	 * Creates a topic that logs Strings.
+	 * @param name
+	 * @param unit
+	 * @param supplier the function to be called to return the logged data
+	 * @param attrs array of topic attributes
+	 */
 	public static void createTopicStr(String name, String unit, Supplier<String> supplier, String... attrs) {
 		if (!instance.get().registerMode)
 			throw new InvalidModeException();
@@ -66,10 +82,27 @@ public class BadLog {
 		instance.get().topics.add(topic);
 	}
 
+	/**
+	 * Creates a topic that logs doubles.
+	 * 
+	 * Doubles are converted to strings based on the doubleToString function.
+	 * 
+	 * @param name
+	 * @param unit
+	 * @param supplier the function to be called to return the logged data
+	 * @param attrs array of topic attributes
+	 */
 	public static void createTopic(String name, String unit, Supplier<Double> supplier, String... attrs) {
 		createTopicStr(name, unit, () -> DOUBLE_TO_STRING_FUNC.apply(supplier.get()), attrs);
 	}
 
+	/**
+	 * Creates a subscribed topic.
+	 * @param name
+	 * @param unit
+	 * @param inferMode the method to use if data has not been published
+	 * @param attrs array of topic attributes
+	 */
 	public static void createTopicSubscriber(String name, String unit, DataInferMode inferMode, String... attrs) {
 		if (!instance.get().registerMode)
 			throw new InvalidModeException();
@@ -84,6 +117,11 @@ public class BadLog {
 		instance.get().topics.add(topic);
 	}
 
+	/**
+	 * Creates a named value.
+	 * @param name
+	 * @param value
+	 */
 	public static void createValue(String name, String value) {
 		if (!instance.get().registerMode)
 			throw new InvalidModeException();
@@ -95,6 +133,11 @@ public class BadLog {
 		instance.get().namespace.add(new Value(name, value));
 	}
 
+	/**
+	 * Publish a string to a topic.
+	 * @param name
+	 * @param value
+	 */
 	public static void publish(String name, String value) {
 		BadLog tmp = instance.get();
 		if (tmp.registerMode)
@@ -102,10 +145,19 @@ public class BadLog {
 		tmp.recievePublishedData(name, value);
 	}
 
+	/**
+	 * Publish a double to a topic.
+	 * @param name
+	 * @param value
+	 */
 	public static void publish(String name, double value) {
 		publish(name, DOUBLE_TO_STRING_FUNC.apply(value));
 	}
 
+	/**
+	 * Closes the logger for any new values or topics.
+	 * Prints bag file headers.
+	 */
 	public void finalize() {
 		if (!registerMode)
 			throw new InvalidModeException();
@@ -158,6 +210,11 @@ public class BadLog {
 		return jsonRoot.toJSONString();
 	}
 
+	/**
+	 * Query all queried topics and process published data.
+	 * 
+	 * This must be called before each call to log
+	 */
 	public void updateTopics() {
 		if (registerMode)
 			throw new InvalidModeException();
@@ -171,6 +228,9 @@ public class BadLog {
 		publishedData.replaceAll((k, v) -> Optional.empty());
 	}
 
+	/**
+	 * Write the values of each topic to the bag file.
+	 */
 	public void log() {
 		if (registerMode)
 			throw new InvalidModeException();
