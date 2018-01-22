@@ -237,7 +237,7 @@ public class BadLog {
 			throw new InvalidModeException();
 
 		StringJoiner joiner = new StringJoiner(",");
-		topics.stream().map(Topic::getValue).forEach((v) -> joiner.add(v));
+		topics.stream().map(Topic::getValue).map(BadLog::escapeCommas).forEach((v) -> joiner.add(v));
 		String line = joiner.toString();
 
 		writeLine(line);
@@ -245,6 +245,13 @@ public class BadLog {
 
 	public void setDoubleToStringFunction(Function<Double, String> function) {
 		this.doubleStringFunction = function;
+	}
+
+	private static String escapeCommas(String in) {
+		if (in.contains(",")) {
+			return "\"" + in + "\"";
+		}
+		return in;
 	}
 
 	private static boolean isInNamespace(String name) {
