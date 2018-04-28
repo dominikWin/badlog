@@ -3,10 +3,10 @@ A data logging system for FRC Robots.
 
 ## Example
 ```java
-package badlog.lib;
-
 public class Main {
 	public static void main(String[] args) {
+	
+		// Init
 		BadLog log = BadLog.init("test.bag");
 		{
 			BadLog.createValue("Example Value", System.getProperty("os.version"));
@@ -19,7 +19,7 @@ public class Main {
 		}
 		log.finalize();
 		
-		
+		// Execution
 		
 		for (int i = 0; i < 10; i++) {
 			
