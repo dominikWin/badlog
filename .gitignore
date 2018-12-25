@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 *.zip
@@ -38,3 +37,5 @@ local.properties
 
 # IDEA
 .idea
+build
+out
