@@ -1,6 +1,24 @@
 # badlog
 A data logging system for FRC Robots.
 
+## Setup
+
+### Manual
+Place `badlog.jar` (found on GitHub release page) into a lib folder with [`json-simple-1.1.1.jar`](http://central.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar).
+
+### Gradle
+Add
+```java
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile "com.github.dominikWin:badlog:v0.1.1"
+}
+```
+to the build.gradle file.
+
 ## Example
 ```java
 public class Main {
@@ -33,3 +51,6 @@ public class Main {
 	}
 }
 ```
+
+## Whitepaper
+[Link](https://www.chiefdelphi.com/media/papers/3505)
