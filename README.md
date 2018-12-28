@@ -1,5 +1,5 @@
 # badlog
-A data logging system for FRC Robots.
+A data logging system for FRC Robots. Pairs with [badlogvis](https://github.com/dominikWin/badlogvis), a visualization tool.
 
 ## Setup
 
