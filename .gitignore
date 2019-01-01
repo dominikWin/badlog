@@ -3,6 +3,8 @@
 .metadata
 bin/
 tmp/
+*.bag
+*.bag.gz
 *.tmp
 *.bak
 *.swp
