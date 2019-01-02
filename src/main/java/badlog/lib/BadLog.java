@@ -80,7 +80,7 @@ public class BadLog {
     }
 
     public static BadLog init(String path) {
-        return init(path, true);
+        return init(path, false);
     }
 
 
