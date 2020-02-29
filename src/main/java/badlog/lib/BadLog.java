@@ -83,6 +83,24 @@ public class BadLog {
         return badLog;
     }
 
+    /**
+     * Initializes BadLog.
+     *
+     * @param path of bag file
+     * @param compress compresses the output log file
+     * @return the instance of BadLog
+     * @throws RuntimeException if already initialized
+     */
+    public static BadLog init(String path, Boolean compress) {
+        if (instance.isPresent())
+            throw new RuntimeException();
+
+        BadLog badLog = new BadLog(path, compress, false);
+        instance = Optional.of(badLog);
+
+        return badLog;
+    }
+
     public static BadLog init(String path) {
         return init(path, false,true);
     }
