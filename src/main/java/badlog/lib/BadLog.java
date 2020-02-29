@@ -25,6 +25,7 @@ public class BadLog {
     private static Optional<BadLog> instance = Optional.empty();
 
     private boolean registerMode;
+    private boolean flushMode;
 
     private List<NamespaceObject> namespace;
     private HashMap<String, Optional<String>> publishedData;
@@ -36,8 +37,9 @@ public class BadLog {
 
     private Function<Double, String> doubleStringFunction = (d) -> String.format("%.5g", d);
 
-    private BadLog(String path, Boolean compress) {
+    private BadLog(String path, Boolean compress, Boolean flush) {
         registerMode = true;
+        flushMode = flush;
         namespace = new ArrayList<>();
         topics = new ArrayList<>();
         publishedData = new HashMap<>();
@@ -66,21 +68,41 @@ public class BadLog {
      * Initializes BadLog.
      *
      * @param path of bag file
+     * @param compress compresses the output log file
+     * @param flush flushes immediately if true
      * @return the instance of BadLog
      * @throws RuntimeException if already initialized
      */
-       public static BadLog init(String path, Boolean compress) {
+       public static BadLog init(String path, Boolean compress, Boolean flush) {
         if (instance.isPresent())
             throw new RuntimeException();
 
-        BadLog badLog = new BadLog(path, compress);
+        BadLog badLog = new BadLog(path, compress, flush);
+        instance = Optional.of(badLog);
+
+        return badLog;
+    }
+
+    /**
+     * Initializes BadLog.
+     *
+     * @param path of bag file
+     * @param compress compresses the output log file
+     * @return the instance of BadLog
+     * @throws RuntimeException if already initialized
+     */
+    public static BadLog init(String path, Boolean compress) {
+        if (instance.isPresent())
+            throw new RuntimeException();
+
+        BadLog badLog = new BadLog(path, compress, false);
         instance = Optional.of(badLog);
 
         return badLog;
     }
 
     public static BadLog init(String path) {
-        return init(path, false);
+        return init(path, false,true);
     }
 
 
@@ -201,6 +223,7 @@ public class BadLog {
 
         writeLine(jsonHeader);
         writeLine(header);
+        flush();
 
     }
 
@@ -302,6 +325,18 @@ public class BadLog {
     private void writeLine(String lines) {
         try {
             fileWriter.write(lines + System.lineSeparator());
+            if(flushMode)
+                flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Flushes all buffered file writes
+     */
+    public void flush(){
+        try {
             fileWriter.flush();
         } catch (IOException e) {
             e.printStackTrace();
